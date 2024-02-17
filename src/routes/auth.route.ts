@@ -7,19 +7,16 @@ const router = Router();
 
 router.post(
   "/login",
-  () => [body("email").isEmail(), body("password").isString()],
+  body("email").isEmail(),
+  body("password").isString(),
   controller.postLogin
 );
 
-router.delete(
-  "/logout",
-  () => [body("token").isString()],
-  controller.deleteLogout
-);
+router.delete("/logout", body("token").isString(), controller.deleteLogout);
 
 router.post(
   "/refreshToken",
-  () => [body("token").isString()],
+  body("token").isString(),
   controller.postRefreshToken
 );
 

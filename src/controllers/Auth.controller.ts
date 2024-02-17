@@ -10,6 +10,10 @@ import { UserModel } from "models/User.model";
 
 export class AuthController extends BaseController {
   postLogin: ActionFunc = async (request, response) => {
+    if (!this.validateRequest(request, response)) {
+      return
+    }
+
     try {
       const email = request.body.email as string;
       const password = request.body.password as string;
@@ -29,6 +33,8 @@ export class AuthController extends BaseController {
         email: userObj.email,
         password: userObj.password,
       };
+
+      console.log('user', user)
 
       const accessToken = generateAccessToken(user);
       const refreshToken = generateRefreshToken(user);
@@ -90,6 +96,10 @@ export class AuthController extends BaseController {
   };
 
   deleteLogout: ActionFunc = async (request, response) => {
+    if (!this.validateRequest(request, response)) {
+      return
+    }
+
     try {
       const refreshToken = request.body.token as string;
       const tokenModel = new UserTokenModel();

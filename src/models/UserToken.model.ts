@@ -6,6 +6,6 @@ export class UserTokenModel extends BaseModel<UserToken> {
   _repository = dataSource.getRepository(UserToken);
 
   save(userId: number, token: string) {
-    return this._repository.save({ userId, token });
+    return this._repository.save({ user: { id: userId }, token });
   }
 }

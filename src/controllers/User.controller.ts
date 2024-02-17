@@ -23,6 +23,10 @@ export class UserController extends BaseController {
   };
 
   post: ActionFunc = async (request, response) => {
+    if (!this.validateRequest(request, response)) {
+      return;
+    }
+
     try {
       const name = request.body.name as string;
       const email = request.body.email as string;
@@ -41,6 +45,10 @@ export class UserController extends BaseController {
   };
 
   put: ActionFunc = async (request, response) => {
+    if (!this.validateRequest(request, response)) {
+      return;
+    }
+
     try {
       const id = request.user?.id;
 

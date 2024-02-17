@@ -9,7 +9,7 @@ const app = express();
 
 dataSource.initialize();
 
-app.set("port", process.env.PORT || 3051);
+app.set("port", process.env.PORT || 3052);
 
 app.use(bodyParser.json());
 

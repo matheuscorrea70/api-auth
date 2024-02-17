@@ -11,23 +11,19 @@ router.get("/", authenticateToken, controller.getOne);
 
 router.post(
   "/",
-  () => [
-    body("email").isEmail(),
-    body("name").isString(),
-    body("password").isString(),
-  ],
+  body("email").isEmail(),
+  body("name").isString(),
+  body("password").isString(),
   controller.post
 );
 
 router.put(
   "/:id",
+  body("email").isEmail().optional(),
+  body("name").isString().optional(),
+  body("password").isString().optional(),
+  body("newPassword").isString().optional(),
   authenticateToken,
-  () => [
-    body("email").isEmail().optional(),
-    body("name").isString().optional(),
-    body("password").isString().optional(),
-    body("newPassword").isString().optional(),
-  ],
   controller.put
 );
 
