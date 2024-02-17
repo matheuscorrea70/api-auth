@@ -7,11 +7,14 @@ import { UserTokenModel } from "models/UserToken.model";
 import { verifyRefreshToken } from "utils/token/verifyRefreshToken";
 import { TUser } from "src/types/user.type";
 import { UserModel } from "models/User.model";
+import { UnauthorizedError } from "utils/errors/UnauthorizedError";
+import { handleError } from "utils/errors/handleError";
+import { ForbiddenError } from "utils/errors/ForbiddenError";
 
 export class AuthController extends BaseController {
   postLogin: ActionFunc = async (request, response) => {
     if (!this.validateRequest(request, response)) {
-      return
+      return;
     }
 
     try {
@@ -21,10 +24,9 @@ export class AuthController extends BaseController {
       const userObj = await userModel.findOneBy({ email, password });
 
       if (!userObj) {
-        return response.status(401).send({
-          message:
-            "Authentication failed: User email or password is not valid.",
-        });
+        throw new UnauthorizedError(
+          "Authentication failed, email or password is not valid."
+        );
       }
 
       const user: TUser = {
@@ -34,8 +36,6 @@ export class AuthController extends BaseController {
         password: userObj.password,
       };
 
-      console.log('user', user)
-
       const accessToken = generateAccessToken(user);
       const refreshToken = generateRefreshToken(user);
       const userTokenModel = new UserTokenModel();
@@ -44,10 +44,7 @@ export class AuthController extends BaseController {
 
       response.json({ accessToken, refreshToken });
     } catch (error) {
-      response.status(500).send({
-        message: "Internal server error.",
-        error,
-      });
+      handleError(error, response);
     }
   };
 
@@ -56,25 +53,21 @@ export class AuthController extends BaseController {
       const refreshToken = request.body.token as string;
 
       if (!refreshToken) {
-        return response.status(401).send({
-          message: "An access token is required to request this resource.",
-        });
+        throw new UnauthorizedError(
+          "An access token is required to request this resource."
+        );
       }
 
       const tokenModel = new UserTokenModel();
       const tokenObj = await tokenModel.findOneBy({ token: refreshToken });
 
       if (!tokenObj) {
-        return response
-          .status(403)
-          .send({ message: "Authentication failed: Token is not valid." });
+        throw new ForbiddenError("Token is not valid.");
       }
 
       verifyRefreshToken(refreshToken, (error, jwtUser) => {
         if (error) {
-          return response
-            .status(403)
-            .send({ message: "Authentication failed: Token is not valid." });
+          throw new ForbiddenError("Token is not valid.");
         }
 
         const user = jwtUser as TUser & JwtPayload;
@@ -88,16 +81,13 @@ export class AuthController extends BaseController {
         response.json({ accessToken });
       });
     } catch (error) {
-      response.status(500).send({
-        message: "Internal server error.",
-        error,
-      });
+      handleError(error, response);
     }
   };
 
   deleteLogout: ActionFunc = async (request, response) => {
     if (!this.validateRequest(request, response)) {
-      return
+      return;
     }
 
     try {
@@ -111,10 +101,7 @@ export class AuthController extends BaseController {
 
       response.sendStatus(204);
     } catch (error) {
-      response.status(500).send({
-        message: "Internal server error.",
-        error,
-      });
+      handleError(error, response);
     }
   };
 }

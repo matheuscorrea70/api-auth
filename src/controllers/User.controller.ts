@@ -1,6 +1,9 @@
 import { BaseController } from "./Base.controller";
 import { ActionFunc } from "src/types/request.type";
 import { UserModel } from "models/User.model";
+import { handleError } from "utils/errors/handleError";
+import { UnauthorizedError } from "utils/errors/UnauthorizedError";
+import { NotFoundError } from "utils/errors/NotFoundError";
 
 export class UserController extends BaseController {
   getOne: ActionFunc = async (request, response) => {
@@ -10,15 +13,12 @@ export class UserController extends BaseController {
       const userObj = await userModel.findOneBy({ id });
 
       if (!userObj) {
-        return response.status(404).json({ message: "User not found." });
+        throw new NotFoundError("User not found.");
       }
 
       response.json({ ...userObj, password: undefined });
     } catch (error) {
-      response.status(500).send({
-        message: "Internal server error.",
-        error,
-      });
+      handleError(error, response);
     }
   };
 
@@ -37,10 +37,7 @@ export class UserController extends BaseController {
 
       response.json(tokenObj);
     } catch (error) {
-      response.status(500).send({
-        message: "Internal server error.",
-        error,
-      });
+      handleError(error, response);
     }
   };
 
@@ -53,7 +50,7 @@ export class UserController extends BaseController {
       const id = request.user?.id;
 
       if (!id) {
-        return response.status(404).json({ message: "User not found." });
+        throw new NotFoundError("User not found.");
       }
 
       const email = request.body.email as string;
@@ -64,13 +61,13 @@ export class UserController extends BaseController {
       const userObj = await userModel.findOneBy({ id });
 
       if (!userObj) {
-        return response.status(404).json({ message: "User not found." });
+        throw new NotFoundError("User not found.");
       }
 
       if (newPassword && password !== userObj.password) {
-        return response.status(401).send({
-          message: "Authentication failed: Password is not valid.",
-        });
+        throw new UnauthorizedError(
+          "Authentication failed, password is not valid."
+        );
       }
 
       const tokenObj = await userModel.update(id, {
@@ -81,10 +78,7 @@ export class UserController extends BaseController {
 
       response.json(tokenObj);
     } catch (error) {
-      response.status(500).send({
-        message: "Internal server error.",
-        error,
-      });
+      handleError(error, response);
     }
   };
 }
