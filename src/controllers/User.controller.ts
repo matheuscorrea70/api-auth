@@ -59,15 +59,15 @@ export class UserController extends BaseController {
         return response.status(404).json({ message: "User not found." });
       }
 
-      if (email !== userObj.email || password !== userObj.password) {
+      if (newPassword && password !== userObj.password) {
         return response.status(401).send({
-          message:
-            "Authentication failed: User email or password is not valid.",
+          message: "Authentication failed: Password is not valid.",
         });
       }
 
       const tokenObj = await userModel.update(id, {
         name: name || userObj.name,
+        email: email || userObj.email,
         password: newPassword || userObj.password,
       });
 

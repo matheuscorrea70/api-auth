@@ -1,11 +1,10 @@
 import { Router } from "express";
-import { UserController } from "controllers/User.controller";
+import user from "./user.route";
+import auth from "./auth.route";
 
-const controller = new UserController();
-const router = Router();
+const routes = Router();
 
-router.post("v1/login", controller.postLogin);
-router.delete("v1/logout", controller.deleteLogout);
-router.post("v1/refreshToken", controller.postRefreshToken);
+routes.use("/v1/auth", auth);
+routes.use("/v1/user", user);
 
-export { router };
+export { routes };

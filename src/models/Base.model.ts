@@ -1,5 +1,7 @@
 import {
+  DeleteResult,
   FindOptionsWhere,
+  ObjectId,
   ObjectLiteral,
   RemoveOptions,
   Repository,
@@ -14,5 +16,20 @@ export abstract class BaseModel<Entity extends ObjectLiteral> {
 
   remove(entity: Entity, options?: RemoveOptions) {
     return this._repository.remove(entity, options);
+  }
+
+  delete(
+    criteria:
+      | string
+      | string[]
+      | number
+      | number[]
+      | Date
+      | Date[]
+      | ObjectId
+      | ObjectId[]
+      | FindOptionsWhere<Entity>
+  ): Promise<DeleteResult> {
+    return this._repository.delete(criteria);
   }
 }
