@@ -15,7 +15,7 @@ router.post(
 router.delete("/logout", body("token").isString(), controller.deleteLogout);
 
 router.post(
-  "/refreshToken",
+  "/refresh-token",
   body("token").isString(),
   controller.postRefreshToken
 );
