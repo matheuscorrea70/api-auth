@@ -1,4 +1,3 @@
-import bcrypt from "bcrypt";
 import dataSource from "configs/dataSource";
 import { BaseModel } from "./Base.model";
 import { User } from "./entities/User.entity";
@@ -6,13 +5,18 @@ import { TInsertUserPayload, TUpdateUserPayload } from "./types/user.types";
 import { UserTokenModel } from "./UserToken.model";
 import { NotFoundError } from "utils/errors/NotFoundError";
 import { UnauthorizedError } from "utils/errors/UnauthorizedError";
+import { encryptPassword } from "utils/password/encryptPassword";
+import { comparePassword } from "utils/password/comparePasswords";
+import { TUser } from "src/types/user.type";
+import { generateAccessToken } from "utils/token/generateAccessToken";
+import { generateRefreshToken } from "utils/token/generateRefreshToken";
 
 export class UserModel extends BaseModel<User> {
   _repository = dataSource.getRepository(User);
 
   async insert(data: TInsertUserPayload) {
-    const password = await bcrypt.hash(data.password, 10);
-    
+    const password = await encryptPassword(data.password);
+
     return this._repository.save({ ...data, password });
   }
 
@@ -27,7 +31,7 @@ export class UserModel extends BaseModel<User> {
       (data.newPassword && !data.password) ||
       (data.newPassword &&
         data.password &&
-        !bcrypt.compare(data.password, userObj.password))
+        !comparePassword(data.password, userObj.password))
     ) {
       throw new UnauthorizedError(
         "Authentication failed, password is not valid."
@@ -41,7 +45,7 @@ export class UserModel extends BaseModel<User> {
     };
 
     if (data.newPassword) {
-      newData.password = await bcrypt.hash(data.newPassword, 10);
+      newData.password = await encryptPassword(data.newPassword);
     }
 
     const user = await this._repository.save(newData);
@@ -54,5 +58,30 @@ export class UserModel extends BaseModel<User> {
     }
 
     return user;
+  }
+
+  async login(email: string, password: string) {
+    const userObj = await this.findOneBy({ email });
+
+    if (!userObj || !(await comparePassword(password, userObj.password))) {
+      throw new UnauthorizedError(
+        "Authentication failed, email or password is not valid."
+      );
+    }
+
+    const user: TUser = {
+      id: userObj.id,
+      name: userObj.name,
+      email: userObj.email,
+      password: userObj.password,
+    };
+
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+    const userTokenModel = new UserTokenModel();
+
+    await userTokenModel.save(user.id, refreshToken);
+
+    return { accessToken, refreshToken };
   }
 }
