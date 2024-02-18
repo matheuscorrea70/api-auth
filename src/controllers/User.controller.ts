@@ -2,7 +2,6 @@ import { BaseController } from "./Base.controller";
 import { ActionFunc } from "src/types/request.type";
 import { UserModel } from "models/User.model";
 import { handleError } from "utils/errors/handleError";
-import { UnauthorizedError } from "utils/errors/UnauthorizedError";
 import { NotFoundError } from "utils/errors/NotFoundError";
 
 export class UserController extends BaseController {
@@ -58,22 +57,12 @@ export class UserController extends BaseController {
       const password = request.body.password as string;
       const newPassword = request.body.newPassword as string;
       const userModel = new UserModel();
-      const userObj = await userModel.findOneBy({ id });
-
-      if (!userObj) {
-        throw new NotFoundError("User not found.");
-      }
-
-      if (newPassword && password !== userObj.password) {
-        throw new UnauthorizedError(
-          "Authentication failed, password is not valid."
-        );
-      }
 
       const tokenObj = await userModel.update(id, {
-        name: name || userObj.name,
-        email: email || userObj.email,
-        password: newPassword || userObj.password,
+        name: name,
+        email: email,
+        password: password,
+        newPassword: newPassword
       });
 
       response.json(tokenObj);
