@@ -1,12 +1,12 @@
-import jwt, { JwtPayload, VerifyCallback } from "jsonwebtoken";
+import jwt, { type JwtPayload, type VerifyCallback } from "jsonwebtoken";
 
 export const verifyRefreshToken = (
   refreshToken: string,
   callback: VerifyCallback<JwtPayload | string>
-) => {
-  return jwt.verify(
+): void => {
+  jwt.verify(
     refreshToken,
-    process.env.REFRESH_TOKEN_SECRET as string,
+    process.env.REFRESH_TOKEN_SECRET ?? '',
     callback
   );
 };

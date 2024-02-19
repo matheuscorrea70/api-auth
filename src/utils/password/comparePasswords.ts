@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
 
-export const comparePassword = (
+export const comparePassword = async (
   password: string,
   encryptedPassword: string
-) => {
-  return bcrypt.compare(password, encryptedPassword);
+): Promise<boolean> => {
+  return await bcrypt.compare(password, encryptedPassword);
 };

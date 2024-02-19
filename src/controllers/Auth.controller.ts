@@ -1,5 +1,5 @@
 import { BaseController } from "./Base.controller";
-import { ActionFunc } from "src/types/request.type";
+import { type ActionFunc } from "src/types/request.type";
 import { UserTokenModel } from "models/UserToken.model";
 import { UserModel } from "models/User.model";
 import { UnauthorizedError } from "utils/errors/UnauthorizedError";
@@ -39,7 +39,7 @@ export class AuthController extends BaseController {
 
       const tokenModel = new UserTokenModel();
 
-      tokenModel.refreshToken(refreshToken, (accessToken) => {
+      await tokenModel.refreshToken(refreshToken, (accessToken) => {
         response.json({ accessToken });
       });
     } catch (error) {
@@ -57,8 +57,8 @@ export class AuthController extends BaseController {
       const tokenModel = new UserTokenModel();
       const tokenObj = await tokenModel.findOneBy({ token: refreshToken });
 
-      if (tokenObj) {
-        tokenModel.remove(tokenObj);
+      if (tokenObj !== null) {
+        await tokenModel.remove(tokenObj);
       }
 
       response.sendStatus(204);

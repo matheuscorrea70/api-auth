@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
-import { MiddlewareFunc } from "src/types/request.type";
-import { TUser } from "src/types/user.type";
+import { type MiddlewareFunc } from "src/types/request.type";
+import { type TUser } from "src/types/user.type";
 
 export const authenticateToken: MiddlewareFunc = (request, response, next) => {
   const authHeader = request.headers?.authorization;
@@ -15,7 +15,7 @@ export const authenticateToken: MiddlewareFunc = (request, response, next) => {
 
   jwt.verify(
     token,
-    process.env.ACCESS_TOKEN_SECRET as string,
+    process.env.ACCESS_TOKEN_SECRET ?? '',
     (error, user) => {
       if (error) {
         response

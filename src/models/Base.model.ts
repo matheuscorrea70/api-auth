@@ -1,24 +1,24 @@
 import {
-  DeleteResult,
-  FindOptionsWhere,
-  ObjectId,
-  ObjectLiteral,
-  RemoveOptions,
-  Repository,
+  type DeleteResult,
+  type FindOptionsWhere,
+  type ObjectId,
+  type ObjectLiteral,
+  type RemoveOptions,
+  type Repository,
 } from "typeorm";
 
 export abstract class BaseModel<Entity extends ObjectLiteral> {
   protected abstract _repository: Repository<Entity>;
 
-  findOneBy(where: FindOptionsWhere<Entity> | FindOptionsWhere<Entity>[]) {
-    return this._repository.findOneBy(where);
+  async findOneBy(where: FindOptionsWhere<Entity> | Array<FindOptionsWhere<Entity>>): Promise<Entity | null> {
+    return await this._repository.findOneBy(where);
   }
 
-  remove(entity: Entity, options?: RemoveOptions) {
-    return this._repository.remove(entity, options);
+  async remove(entity: Entity, options?: RemoveOptions): Promise<Entity> {
+    return await this._repository.remove(entity, options);
   }
 
-  delete(
+  async delete(
     criteria:
       | string
       | string[]
@@ -30,6 +30,6 @@ export abstract class BaseModel<Entity extends ObjectLiteral> {
       | ObjectId[]
       | FindOptionsWhere<Entity>
   ): Promise<DeleteResult> {
-    return this._repository.delete(criteria);
+    return await this._repository.delete(criteria);
   }
 }

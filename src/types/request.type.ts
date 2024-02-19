@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from "express";
-import { TUser } from "./user.type";
+import { type Request, type Response, type NextFunction } from "express";
+import { type TUser } from "./user.type";
 
 export type CustomRequest = {
   user?: TUser;

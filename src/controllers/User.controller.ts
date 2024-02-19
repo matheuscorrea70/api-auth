@@ -1,5 +1,5 @@
 import { BaseController } from "./Base.controller";
-import { ActionFunc } from "src/types/request.type";
+import { type ActionFunc } from "src/types/request.type";
 import { UserModel } from "models/User.model";
 import { handleError } from "utils/errors/handleError";
 import { NotFoundError } from "utils/errors/NotFoundError";
@@ -59,10 +59,10 @@ export class UserController extends BaseController {
       const userModel = new UserModel();
 
       const tokenObj = await userModel.update(id, {
-        name: name,
-        email: email,
-        password: password,
-        newPassword: newPassword
+        name,
+        email,
+        password,
+        newPassword
       });
 
       response.json(tokenObj);

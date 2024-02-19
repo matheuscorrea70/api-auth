@@ -1,15 +1,15 @@
 import "dotenv/config";
 
-import express, { Request, Response, NextFunction } from "express";
+import express, { type Request, type Response, type NextFunction } from "express";
 import bodyParser from "body-parser";
 import dataSource from "./configs/dataSource";
 import { routes as apiRoutes } from "./routes/index";
 
 const app = express();
 
-dataSource.initialize();
+void dataSource.initialize();
 
-app.set("port", process.env.PORT || 3052);
+app.set("port", process.env.PORT ?? 3052);
 
 app.use(bodyParser.json());
 

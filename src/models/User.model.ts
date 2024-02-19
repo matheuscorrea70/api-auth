@@ -1,26 +1,30 @@
 import dataSource from "configs/dataSource";
 import { BaseModel } from "./Base.model";
 import { User } from "./entities/User.entity";
-import { TInsertUserPayload, TUpdateUserPayload } from "./types/user.types";
+import type {
+  TLoginResponse,
+  TInsertUserPayload,
+  TUpdateUserPayload,
+} from "./types/user.types";
 import { UserTokenModel } from "./UserToken.model";
 import { NotFoundError } from "utils/errors/NotFoundError";
 import { UnauthorizedError } from "utils/errors/UnauthorizedError";
 import { encryptPassword } from "utils/password/encryptPassword";
 import { comparePassword } from "utils/password/comparePasswords";
-import { TUser } from "src/types/user.type";
+import { type TUser } from "src/types/user.type";
 import { generateAccessToken } from "utils/token/generateAccessToken";
 import { generateRefreshToken } from "utils/token/generateRefreshToken";
 
 export class UserModel extends BaseModel<User> {
   _repository = dataSource.getRepository(User);
 
-  async insert(data: TInsertUserPayload) {
+  async insert(data: TInsertUserPayload): Promise<User> {
     const password = await encryptPassword(data.password);
 
-    return this._repository.save({ ...data, password });
+    return await this._repository.save({ ...data, password });
   }
 
-  async update(id: number, data: TUpdateUserPayload) {
+  async update(id: number, data: TUpdateUserPayload): Promise<User> {
     const userObj = await this.findOneBy({ id });
 
     if (!userObj) {
@@ -28,10 +32,10 @@ export class UserModel extends BaseModel<User> {
     }
 
     if (
-      (data.newPassword && !data.password) ||
+      (data.newPassword && !data.password) ??
       (data.newPassword &&
         data.password &&
-        !comparePassword(data.password, userObj.password))
+        !(await comparePassword(data.password, userObj.password)))
     ) {
       throw new UnauthorizedError(
         "Authentication failed, password is not valid."
@@ -39,7 +43,7 @@ export class UserModel extends BaseModel<User> {
     }
 
     const newData: Partial<User> = {
-      id: id,
+      id,
       name: data.name,
       email: data.email,
     };
@@ -60,7 +64,7 @@ export class UserModel extends BaseModel<User> {
     return user;
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string): Promise<TLoginResponse> {
     const userObj = await this.findOneBy({ email });
 
     if (!userObj || !(await comparePassword(password, userObj.password))) {

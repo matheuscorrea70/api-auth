@@ -1,13 +1,14 @@
-import { Response } from "express";
+import { type Response } from "express";
 
 import { CustomError } from "./CustomErro";
 
 export const handleError = (
   error: CustomError | Error | unknown,
   response: Response
-) => {
+): void => {
   if (error instanceof CustomError) {
-    return response.status(error.status).send(error);
+    response.status(error.status).send(error);
+    return
   }
 
   let message = "Internal server error";
@@ -16,5 +17,5 @@ export const handleError = (
     message = error.message;
   }
 
-  return response.status(500).send({ message });
+  response.status(500).send({ message });
 };

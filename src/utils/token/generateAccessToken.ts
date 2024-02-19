@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
-import { TUser } from "src/types/user.type";
+import { type TUser } from "src/types/user.type";
 
-export const generateAccessToken = (user: TUser) => {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET as string, {
+export const generateAccessToken = (user: TUser): string => {
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET ?? '', {
     expiresIn: "15m",
   });
 };
